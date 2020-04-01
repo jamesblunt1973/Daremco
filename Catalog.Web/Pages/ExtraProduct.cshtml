@@ -1,0 +1,68 @@
+﻿@page "/extra/{id}"
+@model ExtraProductModel
+@{
+    string path = "";
+    if (Model.Product != null)
+    {
+        ViewData["Title"] = Model.Product.Name;
+        path = $"{ViewBag.FilesPath}/extra/{Model.Id}/";
+    }
+    else
+        ViewData["Title"] = "محصولی یافت نشد";
+}
+
+<div class="page-content">
+    <div class="product-panel">
+        @if (Model.Product == null)
+        {
+            <div class="error">محصولی یافت نشد</div>
+        }
+        else
+        {
+            <div class="product-title">
+                <h1 class="name">
+                    @Model.Product.Name (@Model.Id)
+                </h1>
+            </div>
+            <div class="product-body">
+                <div class="image" data-slides="@Model.Product.Pictures" data-path="@path">
+                    <img src="@(path)main.jpg" alt="@Model.Product.Name" title="تصویر محصول @Model.Product.Name" />
+                    @*<img src="/img/extra/@Model.Id/main.jpg" alt="@Model.Product.Name" title="تصویر محصول @Model.Product.Name" />*@
+                </div>
+                <div class="properties">
+                    <p>تولید: @Model.Product.CreateDate.GetJalaliDate(JalaliDateFormat.SimpleDate)</p>
+                    @if (!string.IsNullOrEmpty(Model.Product.Properties))
+                    {
+                        var props = Model.Product.Properties.Split('\n');
+                        @foreach (var prop in props)
+                        {
+                            <p>@prop</p>
+                        }
+                    }
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Product.Description))
+            {
+                <div class="product-desc">
+                    @Model.Product.Description
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section metas {
+    @if (Model.Product != null)
+    {
+        var product = Model.Product;
+        var desc = product.Description;
+        var imgUrl = path + "main.jpg";
+        <meta name="description" content="@desc" />
+        <meta name="image" content="@imgUrl" />
+
+        <meta property="og:title" content="@product.Name" />
+        <meta property="og:type" content="product" />
+        <meta property="og:image" content="@imgUrl" />
+        <meta property="og:description" content="@desc" />
+    }
+}

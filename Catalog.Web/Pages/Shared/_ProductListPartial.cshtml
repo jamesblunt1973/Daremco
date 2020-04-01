@@ -1,0 +1,70 @@
+﻿@model ProductSummury;
+
+<div data-id="@Model.Id" class="product product-list-item @("p" + ViewBag.Size)">
+	<div data-href="@ViewBag.FilesPath/products/@Model.Id/main.jpg" class="image btn">
+		<img src="@ViewBag.FilesPath/products/@Model.Id/@(ViewBag.Size).jpg" alt="@Model.Name" title="تصویر محصول @Model.Name" />
+	</div>
+	<div class="info-panel">
+		<a href="/product/@Model.Id" class="id">
+			کد محصول: <b>@Model.Id</b>
+			<span class="dkb-cursor-default-click"></span> @*ei:pointer*@
+		</a>
+		<p class="name">@Model.Name</p>
+		<p class="caption">@Model.TiesWidth گره در @Model.TiesHeight رج</p>
+		<span class="hyphen">-</span>
+		<p class="caption">@Model.Moghat مقاط</p>
+		<span class="hyphen">-</span>
+		<p class="caption">@Model.ColorsCount رنگ</p>
+		@if (Model.MinPrice != Model.MaxPrice)
+		{
+			<p class="price">از @Model.MinPrice.ToString("n0") تا @Model.MaxPrice.ToString("n0") تومان</p>
+		}
+		else
+		{
+			<p class="price">قیمت: @Model.MinPrice.ToString("n0") تومان</p>
+		}
+
+		@if (Model.Stock > 0)
+		{
+			<p class="in-stock">موجودی @Model.Stock عدد</p>
+		}
+		else
+		{
+			<p class="out-stock">
+				فاقد موجودی
+				<span class="message">@Model.DeliveryMessage</span>
+			</p>
+		}
+		@if (Model.Skein)
+		{
+			<p>تحویل به صورت کلافی</p>
+		}
+		else
+		{
+			<p>
+				تحویل به صورت بسته‌ای
+				<a href="@ViewBag.ShopUrl/post/8734" target="_blank">
+					اطلاعات بیشتر
+					<span class="dkb-link-external"></span>
+				</a>
+			</p>
+		}
+		@if (Model.TypeCounts > 1)
+		{
+			<p>
+				شامل @Model.TypeCounts محصول مختلف
+				@*<a href="/link-to-desc" target="_blank">
+					اطلاعات بیشتر
+					<span class="dkb-link-external"></span>
+				</a>*@
+			</p>
+		}
+		@if (Model.Discount > 0)
+		{
+			<div class="discount">
+				<span class="dkb-price-tag"></span>
+				<i>@Model.Discount%</i>
+			</div>
+		}
+	</div>
+</div>

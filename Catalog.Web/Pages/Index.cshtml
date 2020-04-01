@@ -1,0 +1,370 @@
+﻿@page
+@model IndexModel
+@{
+	ViewData["Title"] = "گالری محصولات نخ و نقشه";
+	ViewBag.Size = Model.PictureSize;
+	var count = Model.FilterData.Count ?? 12;
+	var currentPage = Model.FilterData.Page ?? 1;
+	var totalCount = Model.Data.TotalCount;
+	var pagesCount = Math.Ceiling(totalCount * 1.0 / count);
+	var pagesMin = currentPage == 1 ? 1 : currentPage - 1;
+	var pagesMax = currentPage == pagesCount ? pagesCount : currentPage + 1;
+	var counts = new int[] { 12, 24, 36, 48, 96 };
+	var rnd = new Random(DateTime.Now.Millisecond);
+	var picNum = rnd.Next(1, 21);
+	var rajs = Model.PrimaryData.Rajs.Select(a => new { Raj = a.Key, Text = "رجشمار " + a.Key });
+}
+
+<aside class="filter-panel" style="background-image: url('/img/filter-bg/@(picNum).jpg')">
+	<div class="close">
+		<span class="dkb-filter"></span>
+		<span>فیلتر و جستجوی محصولات</span>
+	</div>
+	@using (Html.BeginForm(FormMethod.Get, new { id = "filter-form" }))
+	{
+		<div class="form-control">
+			<label class="toggleButton">
+				<input type="checkbox" name="inStock"
+					checked="@Model.FilterData.InStock">
+				<div>
+					<svg viewBox="0 0 44 44">
+						<path d="M14,24 L21,31 L39.7428882,11.5937758 C35.2809627,6.53125861 30.0333333,4 24,4 C12.95,4 4,12.95 4,24 C4,35.05 12.95,44 24,44 C35.05,44 44,35.05 44,24 C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758" transform="translate(-2.000000, -2.000000)"></path>
+					</svg>
+				</div>
+				محصولات دارای موجودی
+			</label>
+		</div>
+		<div class="form-control">
+			<label class="toggleButton">
+				<input type="checkbox" name="inProduction"
+					checked="@Model.FilterData.InProduction">
+				<div>
+					<svg viewBox="0 0 44 44">
+						<path d="M14,24 L21,31 L39.7428882,11.5937758 C35.2809627,6.53125861 30.0333333,4 24,4 C12.95,4 4,12.95 4,24 C4,35.05 12.95,44 24,44 C35.05,44 44,35.05 44,24 C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758" transform="translate(-2.000000, -2.000000)"></path>
+					</svg>
+				</div>
+				محصولات در دست تولید
+			</label>
+		</div>
+		<div class="form-control">
+			<input class="control" type="number" name="id" value="@Model.FilterData.Id" required title="کد محصول" />
+			<label class="floating">جستجوی کد محصول</label>
+			<hr />
+		</div>
+		<div class="form-control">
+			<input class="control" type="text" name="name" value="@Model.FilterData.Name" required title="نام محصول" />
+			<label class="floating">جستجوی نام محصول</label>
+			<hr />
+		</div>
+		<div class="form-control">
+			<select class="control" name="categoryId" id="categoryId" data-value="@Model.FilterData.CategoryId" title="انتخاب دسته">
+				<option value="">انتخاب دسته</option>
+			</select>
+			<hr />
+		</div>
+		<div class="form-control">
+			<select class="control" name="galleryId" id="galleryId" data-value="@Model.FilterData.GalleryId" title="انتخاب گالری">
+				<option value="">انتخاب گالری</option>
+			</select>
+			<hr />
+		</div>
+		<div class="form-control">
+			<select id="sort" name="sort" class="control" title="مرتب سازی"
+					asp-for="@Model.FilterData.Sort"
+					asp-items="@Html.GetEnumSelectList<SortType>()"></select>
+			<hr />
+		</div>
+		<div class="more">
+			<span style="display: none;" class="dkb-plus-circle"></span>
+			<span class="dkb-minus-circle"></span>
+			<hr />
+			<span>جستجوی پیشرفته</span>
+		</div>
+		<div>
+			<div class="form-control">
+				<span>عرض (گره)</span>
+				<input name="tiesWidth" type="hidden" class="slider-input" value="@Model.FilterData.TiesWidth" data-from="0" data-to="3000" data-step="10" />
+			</div>
+			<div class="form-control">
+				<span>ارتفاع (رج)</span>
+				<input name="tiesHeight" type="hidden" class="slider-input" value="@Model.FilterData.TiesHeight" data-from="0" data-to="3000" data-step="10" />
+			</div>
+			<div class="form-control">
+				<span>عرض (سانت)</span>
+				<input name="dimsWidth" type="hidden" class="slider-input" value="@Model.FilterData.DimsWidth" data-from="0" data-to="600" data-step="10" />
+			</div>
+			<div class="form-control">
+				<span>ارتفاع (سانت)</span>
+				<input name="dimsHeight" type="hidden" class="slider-input" value="@Model.FilterData.DimsHeight" data-from="0" data-to="600" data-step="10" />
+			</div>
+			<div class="form-control">
+				<span>مقاط</span>
+				<input name="moghat" type="hidden" class="slider-input" value="@Model.FilterData.Moghat" data-from="0" data-to="200" data-step="1" />
+			</div>
+			<div class="form-control">
+				<span>تعداد رنگ</span>
+				<input name="colors" type="hidden" class="slider-input" value="@Model.FilterData.Colors" data-from="0" data-to="150" data-step="1" />
+			</div>
+			<div class="form-control">
+				<select class="control" name="raj" id="raj" title="انتخاب رجشمار"
+						asp-for="@Model.FilterData.Raj"
+						asp-items="@(new SelectList(rajs, "Raj", "Text"))">
+					<option value="">انتخاب رجشمار</option>
+				</select>
+				<hr />
+			</div>
+			<div class="form-control">
+				<select class="control" name="layoutId" id="layoutId" title="اشکال خاص"
+						asp-for="@Model.FilterData.LayoutId"
+						asp-items="@(new SelectList(Model.PrimaryData.Layouts, "Key", "Value"))">
+					<option value="">اشکال خاص</option>
+				</select>
+				<hr />
+			</div>
+			<div class="form-control">
+				<select class="control" name="tieTypeId" id="tieTypeId" title="انتخاب نوع بافت"
+						asp-for="@Model.FilterData.TieTypeId"
+						asp-items="@(new SelectList(Model.PrimaryData.TieTypes, "Key", "Value"))">
+					<option value="">انتخاب نوع بافت</option>
+				</select>
+				<hr />
+			</div>
+			<div class="form-control">
+				<select class="control" name="size" id="size" title="انتخاب مساحت"
+						asp-for="@Model.FilterData.Size"
+						asp-items="@(new SelectList(Model.PrimaryData.Sizes, "Limits", "Title"))">
+					<option value="">انتخاب مساحت</option>
+				</select>
+				<hr />
+			</div>
+			<div class="form-control">
+				<select class="control" name="materials" id="materials" title="انتخاب جنس"
+						asp-for="@Model.FilterData.Materials"
+						asp-items="@Html.GetEnumSelectList<Materials>()">
+					<option value="">انتخاب جنس</option>
+				</select>
+				<hr />
+			</div>
+			<div class="form-control">
+				<select class="control" name="delivery" id="delivery" title="انتخاب نوع تحویل"
+						asp-for="@Model.FilterData.Delivery"
+						asp-items="@Html.GetEnumSelectList<Delivery>()">
+					<option value="">انتخاب نوع تحویل</option>
+				</select>
+				<hr />
+				@*<a href="/link-to-desc" target="_blank">
+					اطلاعات بیشتر
+					<span class="dkb-link-external"></span>
+				</a>*@
+			</div>
+			<div class="form-control">
+				<label class="toggleButton">
+					<input type="checkbox" name="discount"
+						   checked="@Model.FilterData.Discount">
+					<div>
+						<svg viewBox="0 0 44 44">
+							<path d="M14,24 L21,31 L39.7428882,11.5937758 C35.2809627,6.53125861 30.0333333,4 24,4 C12.95,4 4,12.95 4,24 C4,35.05 12.95,44 24,44 C35.05,44 44,35.05 44,24 C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758" transform="translate(-2.000000, -2.000000)"></path>
+						</svg>
+					</div>
+					محصولات دارای تخفیف
+				</label>
+			</div>
+			<div class="form-control">
+				<label class="toggleButton">
+					<input type="checkbox" name="freePlans"
+						   checked="@Model.FilterData.FreePlans">
+					<div>
+						<svg viewBox="0 0 44 44">
+							<path d="M14,24 L21,31 L39.7428882,11.5937758 C35.2809627,6.53125861 30.0333333,4 24,4 C12.95,4 4,12.95 4,24 C4,35.05 12.95,44 24,44 C35.05,44 44,35.05 44,24 C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758" transform="translate(-2.000000, -2.000000)"></path>
+						</svg>
+					</div>
+					محصولات دارای نقشه رایگان
+				</label>
+			</div>
+			@{
+				var attributes = new List<int>();
+				if (!string.IsNullOrEmpty(Model.FilterData.Attributes))
+					attributes = Model.FilterData.Attributes.Split(',').Select(int.Parse).ToList();
+				foreach (var attr in Model.PrimaryData.Attributes)
+				{
+					<div class="form-control">
+						<label class="toggleButton">
+							<input type="checkbox" class="attribute" value="@attr.Key" checked="@attributes.Contains(attr.Key)">
+							<div>
+								<svg viewBox="0 0 44 44">
+									<path d="M14,24 L21,31 L39.7428882,11.5937758 C35.2809627,6.53125861 30.0333333,4 24,4 C12.95,4 4,12.95 4,24 C4,35.05 12.95,44 24,44 C35.05,44 44,35.05 44,24 C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758" transform="translate(-2.000000, -2.000000)"></path>
+								</svg>
+							</div>
+							@attr.Value.Name
+						</label>
+					</div>
+				}
+			}
+		</div>
+		<div class="form-actions">
+			<button class="apply" id="filter-apply">اعمال فیلتر</button>
+			<button class="reset" id="filter-reset">بازنشانی</button>
+		</div>
+	}
+</aside>
+
+<div class="page-content">
+	<div class="products-header">
+		<div class="navigation">
+			<div class="item">
+				<a href="/">نخ و نقشه</a>
+			</div>
+			@if (!string.IsNullOrEmpty(Model.Data.CategoryName))
+			{
+				<div class="item">
+					<span class="dkb-chevron-left"></span>
+					<a href="/?categoryId=@Model.FilterData.CategoryId">@Model.Data.CategoryName</a>
+				</div>
+			}
+			@if (!string.IsNullOrEmpty(Model.Data.GalleryName))
+			{
+				<div class="item">
+					<span class="dkb-chevron-left"></span>
+					<a href="/?galleryId=@Model.FilterData.GalleryId">@Model.Data.GalleryName</a>
+				</div>
+			}
+		</div>
+		<div class="products-view-info">
+			<a class="@(Model.FilterData.ViewType == ViewType.GridView ? "active" : "")"
+			   href="/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "ViewType", ViewType.GridView } })">
+				<span class="dkb-view-grid" title="مشاهده جدولی"></span>
+			</a>
+			<a class="@(Model.FilterData.ViewType == ViewType.ListView ? "active" : "")"
+			   href="/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "ViewType", ViewType.ListView } })">
+				<span class="dkb-view-list" title="مشاهده لیستی"></span>
+			</a>
+			<p class="products-count">
+				@totalCount محصول
+			</p>
+		</div>
+	</div>
+	<div class="products">
+		@if (Model.Data == null)
+		{
+			<div class="error">خطایی رخ داده است</div>
+		}
+		else if (totalCount == 0)
+		{
+			<div class="error">هیچ محصولی یافت نشد</div>
+		}
+		else
+		{
+			foreach (var product in Model.Data.Products)
+			{
+				if (Model.FilterData.ViewType == ViewType.GridView)
+				{
+					<partial name="_ProductGridPartial" model="@product" />
+				}
+				else
+				{
+					<partial name="_ProductListPartial" model="@product" />
+				}
+			}
+		}
+	</div>
+	<div class="products-footer">
+		<div class="picture-size">
+			<span class="picture-size-btn p160 @(Model.PictureSize == 160 ? "active" : "")" data-size="160">
+				<span class="dkb-image"></span>
+			</span>
+			<span class="picture-size-btn p200 @(Model.PictureSize == 200 ? "active" : "")" data-size="200">
+				<span class="dkb-image"></span>
+			</span>
+			<span class="picture-size-btn p240 @(Model.PictureSize == 240 ? "active" : "")" data-size="240">
+				<span class="dkb-image"></span>
+			</span>
+			<span class="picture-size-btn p300 @(Model.PictureSize == 300 ? "active" : "")" data-size="300">
+				<span class="dkb-image"></span>
+			</span>
+		</div>
+		@if (totalCount > count)
+		{
+			<div class="pager">
+				@if (pagesMin > 1)
+				{
+					<a href="/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", null } })">1</a>
+				}
+				@if (pagesMin > 2)
+				{
+					<span>…</span>
+				}
+				@for (int i = pagesMin; i <= pagesMax; i++)
+				{
+					if (currentPage == i)
+					{
+						<a href="#" class="active">@i</a>
+					}
+					else
+					{
+						object param;
+						if (i == 1)
+						{ param = null; }
+						else
+						{ param = i; }
+						<a href="/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", @param } })">@i</a>
+					}
+				}
+				@if (pagesMax < pagesCount - 1)
+				{
+					<span>…</span>
+				}
+				@if (pagesMax < pagesCount)
+				{
+					<a href="/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", pagesCount } })">@pagesCount</a>
+				}
+			</div>
+			<div class="counts-per-page">
+				@{ var enough = false; }
+				@foreach (var c in counts)
+				{
+					if (c >= totalCount)
+					{
+						if (enough)
+						{ break; }
+						else
+						{ enough = true; }
+					}
+					if (c == count)
+					{
+						<a href="#" class="active">@c</a>
+					}
+					else
+					{
+						var newValues = new Dictionary<string, object>()
+						{
+							{ "Page", null },
+							{ "Count", c }
+						};
+						<a href="/@Model.FilterData.GetQueryString(newValues)">@c</a>
+					}
+				}
+				<span>محصول در صفحه</span>
+			</div>
+		}
+	</div>
+</div>
+
+@section metas {
+	@{
+		var imgUrl = ViewBag.FilesPath + "/userfiles/products.jpg";
+		var desc = "بزرگترین تولید کننده نخ و نقشه و ملزومات بافت در کشور. فروش از طریق نمایندگی های رسمی در سراسر کشور";
+		var tags = @"تابلوفرش، تابلوفرش دست بافت، نخ و نقشه، نخ و نقشه تابلوفرش، دارکوب امروز،
+					شرکت فرش دستبافت، دورهمی فعالان فرش، دورهمی فعالان فرش دستبافت،
+					دارمکو، تابلوفرش دارمکو، دارمکوپلاس، دارمکو پلاس";
+
+	}
+	<meta name="description" content="@desc" />
+	<meta name="image" content="@imgUrl" />
+	<meta name="keywords" content="@tags" />
+
+	<meta property="og:title" content="گالری محصولات نخ و نقشه فرش و تابلوفرش" />
+	<meta property="og:type" content="product" />
+	<meta property="og:image" content="@imgUrl" />
+	<meta property="og:description" content="@desc" />
+
+}

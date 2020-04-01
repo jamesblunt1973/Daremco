@@ -1,0 +1,8 @@
+﻿@model ExtraProduct;
+
+<a href="/extra/@Model.Id" class="product product-grid-item p200">
+    <img src="@ViewBag.FilesPath/extra/@Model.Id/thumb.jpg" alt="@Model.Name" title="تصویر محصول @Model.Name" />
+    @*<img src="/img/extra/1/thumb.jpg" alt="@Model.Name" title="تصویر محصول @Model.Name" />*@
+    <p class="misc-name">@Model.Name</p>
+    <p class="price">قیمت: @Model.Price.ToString("n0") تومان</p>
+</a>

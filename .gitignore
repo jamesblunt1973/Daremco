@@ -1,0 +1,4 @@
+.vs/*
+Catalog.Web/bin/*
+Catalog.Web/obj/*
+Catalog.Web/Logs/*

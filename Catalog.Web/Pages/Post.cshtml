@@ -1,0 +1,39 @@
+﻿@page "{id}"
+@model Catalog.Web.PostModel
+@{
+    string imgUrl = "";
+    if (Model.Post != null)
+    {
+        ViewData["Title"] = Model.Post.Title;
+        imgUrl = $"{ViewBag.FilesPath}/posts/{Model.Post.Id}/index.jpg";
+    }
+    else
+        ViewData["Title"] = "محصولی یافت نشد";
+}
+
+<div class="static-content">
+    @if (Model.Post != null)
+    {
+        <img src="@imgUrl" alt="@Model.Post.Title" title="تصویر @Model.Post.Title" />
+        @Html.Raw(Model.Post.Context)
+    }
+    else
+    {
+        <h3>صفحه یافت نشد</h3>
+    }
+</div>
+
+@section metas {
+    @if (Model.Post != null)
+    {
+        var post = Model.Post;
+        var desc = post.Description;
+        <meta name="description" content="@desc" />
+        <meta name="image" content="@imgUrl" />
+
+        <meta property="og:title" content="@post.Title" />
+        <meta property="og:type" content="article" />
+        <meta property="og:image" content="@imgUrl" />
+        <meta property="og:description" content="@desc" />
+    }
+}

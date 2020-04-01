@@ -1,0 +1,61 @@
+﻿@model Dictionary<int, ExtraCategory>
+
+<ul class="close">
+    <li>
+        <a href="/">
+            <span class="dkb-home"></span>
+            صفحه اصلی
+        </a>
+    </li>
+    <li>
+        <a href="/misc">
+            <span class="dkb-tools"></span>
+            ملزومات بافت
+        </a>
+    </li>
+    <li>
+        <a href="@ViewBag.ShopUrl/bulk" target="_blank">
+            <span class="dkb-yarn"></span>
+            نخ خامه بسته‌ای
+        </a>
+    </li>
+    @foreach (var item in Model)
+    {
+        <li>
+            <a href="/extra?categoryId=@item.Key">
+                <span class="@item.Value.Icon"></span>
+                @item.Value.Name
+            </a>
+        </li>
+    }
+    <li>
+        <a href="/agents">
+            <span class="dkb-face-agent"></span>
+            لیست نمایندگان
+        </a>
+    </li>
+    <li>
+        <a href="@ViewBag.ShopUrl/basket" target="_blank">
+            <span class="dkb-store"></span>
+            سبد خرید
+        </a>
+    </li>
+    <li>
+        <a href="/post/contact">
+            <span class="dkb-contact-mail"></span>
+            تماس با ما
+        </a>
+    </li>
+    <li>
+        <a href="/post/about">
+            <span class="dkb-information"></span>
+            درباره ما
+        </a>
+    </li>
+    @*<li>
+        <a href="http://shop.daremco.com/user" target="_blank">
+            <span class="dkb-customer"></span>
+            ورود/ثبت نام
+        </a>
+    </li>*@
+</ul>

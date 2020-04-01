@@ -1,0 +1,156 @@
+﻿@page
+@model MiscModel
+@{
+    ViewData["Title"] = "ملزومات بافت";
+    var totalCount = 0;
+    if (Model.Products.Any())
+        totalCount = Model.Products.First().TotalCount;
+    var count = Model.FilterData.Count ?? 10;
+    var currentPage = Model.FilterData.Page ?? 1;
+    var pagesCount = Math.Ceiling(totalCount * 1.0 / count);
+    var pagesMin = currentPage == 1 ? 1 : currentPage - 1;
+    var pagesMax = currentPage == pagesCount ? pagesCount : currentPage + 1;
+    var counts = new int[] { 10, 20, 30, 50, 100 };
+}
+
+<div class="page-content">
+    <div class="products-header">
+        <div class="navigation">
+            <div class="item">
+                <a href="/misc">ملزومات بافت</a>
+                <span class="dkb-chevron-left"></span>
+            </div>
+            <div class="item">
+                <select name="categoryId" class="control select-control" title="انتخاب دسته"
+                        asp-for="@Model.FilterData.CategoryId"
+                        asp-items="@Model.Categories.Select(a => new SelectListItem() { Value = a.Id.ToString(), Text = a.Name })">
+                    <option value="">انتخاب دسته</option>
+                </select>
+                <span class="dkb-chevron-left"></span>
+            </div>
+            <div class="item">
+                @{
+                    var galleries = new List<SelectListItem>();
+                    if (Model.FilterData.CategoryId.HasValue)
+                    {
+                        var category = Model.Categories.Single(a => a.Id == Model.FilterData.CategoryId);
+                        galleries = category.Galleries.Select(a => new SelectListItem(a.Name, a.Id.ToString())).ToList();
+                    }
+                }
+                <select name="galleryId" class="control select-control" title="انتخاب گالری"
+                        asp-for="@Model.FilterData.GalleryId"
+                        asp-items="@galleries">
+                    <option value="">انتخاب گالری</option>
+                </select>
+            </div>
+        </div>
+        <div class="products-view-info">
+            <p class="products-count">
+                @totalCount محصول
+            </p>
+        </div>
+    </div>
+    <div class="products">
+        @if (Model.Products == null)
+        {
+            <div class="error">خطایی رخ داده است</div>
+        }
+        else if (totalCount == 0)
+        {
+            <div class="error">هیچ محصولی یافت نشد</div>
+        }
+        else
+        {
+            @foreach (var product in Model.Products)
+            {
+                <partial name="_MiscProductPartial" model="@product" />
+            }
+        }
+    </div>
+    <div class="products-footer">
+        @if (totalCount > count)
+        {
+            <div class="pager">
+                @if (pagesMin > 1)
+                {
+                    <a href="/misc/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", null } })">1</a>
+                }
+                @if (pagesMin > 2)
+                {
+                    <span>…</span>
+                }
+                @for (int i = pagesMin; i <= pagesMax; i++)
+                {
+                    if (currentPage == i)
+                    {
+                        <a href="#" class="active">@i</a>
+                    }
+                    else
+                    {
+                        object param;
+                        if (i == 1)
+                        { param = null; }
+                        else
+                        { param = i; }
+                        <a href="/misc/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", @param } })">@i</a>
+                    }
+                }
+                @if (pagesMax < pagesCount - 1)
+                {
+                    <span>…</span>
+                }
+                @if (pagesMax < pagesCount)
+                {
+                    <a href="/misc/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", pagesCount } })">@pagesCount</a>
+                }
+            </div>
+            <div class="counts-per-page">
+                @{ var enough = false; }
+                @foreach (var c in counts)
+                {
+                    if (c >= totalCount)
+                    {
+                        if (enough)
+                        { break; }
+                        else
+                        { enough = true; }
+                    }
+                    if (c == count)
+                    {
+                        <a href="#" class="active">@c</a>
+                    }
+                    else
+                    {
+                        object param;
+                        if (c == 12)
+                        { param = null; }
+                        else
+                        { param = c; }
+                        var newValues = new Dictionary<string, object>()
+                            {
+                                { "Page", null },
+                                { "Count", param }
+                            };
+                        <a href="/misc/@Model.FilterData.GetQueryString(newValues)">@c</a>
+                    }
+                }
+                <span>محصول در صفحه</span>
+            </div>
+        }
+    </div>
+</div>
+
+@section metas {
+    @{
+        var imgUrl = ViewBag.FilesPath + "/userfiles/misc.jpg";
+        var desc = "انواع دار قالی چوبی و فلزی، دفه، قلاب، تسمه، گوله ساز، چله و القاج";
+    }
+    <meta name="description" content="@desc" />
+    <meta name="image" content="@imgUrl" />
+
+    <meta property="og:title" content="ملزومات بافت" />
+    <meta property="og:type" content="product" />
+    <meta property="og:image" content="@imgUrl" />
+    <meta property="og:description" content="@desc" />
+
+}

@@ -1,0 +1,148 @@
+﻿@page
+@model ExtraModel
+@{
+    var categoryName = "";
+    var categoryDesc = "";
+    var totalCount = 0;
+    if (Model.FilterData.CategoryId.HasValue)
+    {
+        var category = Model.PrimaryData.ExtraCategories[Model.FilterData.CategoryId.Value];
+        categoryName = category.Name;
+        categoryDesc = category.Description;
+        ViewData["Title"] = categoryName;
+    }
+    else
+        ViewData["Title"] = "محصولی یافت نشد";
+    if (Model.Products.Any())
+        totalCount = Model.Products.First().TotalCount;
+    var count = Model.FilterData.Count ?? 10;
+    var currentPage = Model.FilterData.Page ?? 1;
+    var pagesCount = Math.Ceiling(totalCount * 1.0 / count);
+    var pagesMin = currentPage == 1 ? 1 : currentPage - 1;
+    var pagesMax = currentPage == pagesCount ? pagesCount : currentPage + 1;
+    var counts = new int[] { 10, 20, 30, 50, 100 };
+}
+
+<div class="page-content">
+    <div class="products-header">
+        <div class="navigation">
+            <div class="item">
+                @if (Model.FilterData.CategoryId.HasValue)
+                {
+                    <a href="/extra?categoryId=@Model.FilterData.CategoryId">@categoryName</a>
+                }
+            </div>
+        </div>
+        <div class="products-view-info">
+            <p class="products-count">
+                @totalCount محصول
+            </p>
+        </div>
+    </div>
+    <div class="products">
+        @if (!Model.FilterData.CategoryId.HasValue)
+        {
+            <div class="error">خطا در بارگزاری صفحه</div>
+        }
+        else if (Model.Products == null)
+        {
+            <div class="error">خطایی رخ داده است</div>
+        }
+        else if (totalCount == 0)
+        {
+            <div class="error">هیچ محصولی یافت نشد</div>
+        }
+        else
+        {
+            @foreach (var product in Model.Products)
+            {
+                <partial name="_ExtraProductPartial" model="@product" />
+            }
+        }
+    </div>
+    <div class="products-footer">
+        @if (totalCount > count)
+        {
+            <div class="pager">
+                @if (pagesMin > 1)
+                {
+                    <a href="/extra/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", null } })">1</a>
+                }
+                @if (pagesMin > 2)
+                {
+                    <span>…</span>
+                }
+                @for (int i = pagesMin; i <= pagesMax; i++)
+                {
+                    if (currentPage == i)
+                    {
+                        <a href="#" class="active">@i</a>
+                    }
+                    else
+                    {
+                        object param;
+                        if (i == 1)
+                        { param = null; }
+                        else
+                        { param = i; }
+                        <a href="/extra/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", @param } })">@i</a>
+                    }
+                }
+                @if (pagesMax < pagesCount - 1)
+                {
+                    <span>…</span>
+                }
+                @if (pagesMax < pagesCount)
+                {
+                    <a href="/extra/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", pagesCount } })">@pagesCount</a>
+                }
+            </div>
+            <div class="counts-per-page">
+                @{ var enough = false; }
+                @foreach (var c in counts)
+                {
+                    if (c >= totalCount)
+                    {
+                        if (enough)
+                        { break; }
+                        else
+                        { enough = true; }
+                    }
+                    if (c == count)
+                    {
+                        <a href="#" class="active">@c</a>
+                    }
+                    else
+                    {
+                        object param;
+                        if (c == 12)
+                        { param = null; }
+                        else
+                        { param = c; }
+                        var newValues = new Dictionary<string, object>()
+                            {
+                                { "Page", null },
+                                { "Count", param }
+                            };
+                        <a href="/extra/@Model.FilterData.GetQueryString(newValues)">@c</a>
+                    }
+                }
+                <span>محصول در صفحه</span>
+            </div>
+        }
+    </div>
+</div>
+
+@section metas {
+    @{
+        var imgUrl = ViewBag.FilesPath + "/userfiles/extra.jpg";
+    }
+    <meta name="description" content="@categoryDesc" />
+    <meta name="image" content="@imgUrl" />
+
+    <meta property="og:title" content="گالری محصولات @categoryName" />
+    <meta property="og:type" content="product" />
+    <meta property="og:image" content="@imgUrl" />
+    <meta property="og:description" content="@categoryDesc" />
+
+}

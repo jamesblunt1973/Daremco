@@ -1,0 +1,25 @@
+﻿@page "/sitemap.xml"
+@model Catalog.Web.SitemapModel
+@{
+	Layout = null;
+	var baseUrl = "http://daremco.com/";
+}
+
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>@baseUrl</loc>
+		<lastmod>@DateTime.Now.ToW3CDate()</lastmod>
+		<changefreq>never</changefreq>
+		<priority>1.0</priority>
+	</url>
+	@foreach (var product in Model.Products)
+	{
+		<url>
+			<loc>@(baseUrl + "product/" + product.Id)</loc>
+			<lastmod>@product.CreateDate.ToW3CDate()</lastmod>
+			<changefreq>never</changefreq>
+			<priority>0.9</priority>
+		</url>
+	}
+</urlset>

@@ -1,0 +1,158 @@
+﻿@page
+@model Catalog.Web.Pages.AgentsModel
+@{
+    ViewData["Title"] = "لیست نمایندگان";
+
+    var totalCount = 0;
+    if (Model.Agents.Any())
+        totalCount = Model.Agents.First().TotalCount;
+    var count = Model.FilterData.Count ?? 12;
+    var currentPage = Model.FilterData.Page ?? 1;
+    var pagesCount = Math.Ceiling(totalCount * 1.0 / count);
+    var pagesMin = currentPage == 1 ? 1 : currentPage - 1;
+    var pagesMax = currentPage == pagesCount ? pagesCount : currentPage + 1;
+    var counts = new int[] { 12, 24, 36, 48, 96 };
+}
+
+<div class="page-content">
+    <div class="products-header">
+        <div class="navigation">
+            <div class="item">
+                <a href="/agents">لیست نمایندگان</a>
+                <span class="dkb-chevron-left"></span>
+            </div>
+            <div class="item">
+                <select name="StateId" class="control select-control" title="انتخاب استان"
+                        asp-for="@Model.FilterData.StateId"
+                        asp-items="@Model.States.Select(a => new SelectListItem() { Value = a.Id.ToString(), Text = a.Name })">
+                    <option value="">انتخاب استان</option>
+                </select>
+                <span class="dkb-chevron-left"></span>
+            </div>
+            <div class="item">
+                @if (Model.Cities != null)
+                {
+                    var cities = Model.Cities.Select(a => new SelectListItem(a.Name, a.Id.ToString())).ToList();
+                    <select name="CityId" class="control select-control" title="انتخاب شهر"
+                            asp-for="@Model.FilterData.CityId"
+                            asp-items="@cities">
+                        <option value="">انتخاب شهر</option>
+                    </select>
+                }
+                else
+                {
+                    <select name="CityId" class="control select-control" title="انتخاب شهر">
+                        <option value="">انتخاب شهر</option>
+                    </select>
+                }
+            </div>
+        </div>
+        <div class="products-view-info">
+            <p class="products-count">
+                @totalCount نماینده
+            </p>
+        </div>
+    </div>
+    <div class="products">
+        @if (Model.Agents == null)
+        {
+            <div class="error">خطایی رخ داده است</div>
+        }
+        else if (totalCount == 0)
+        {
+            <div class="error">هیچ محصولی یافت نشد</div>
+        }
+        else
+        {
+            @foreach (var agent in Model.Agents)
+            {
+                <partial name="_AgentPartial" model="@agent" />
+            }
+        }
+    </div>
+    <div class="products-footer">
+        @if (totalCount > count)
+        {
+            <div class="pager">
+                @if (pagesMin > 1)
+                {
+                    <a href="/agents/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", null } })">1</a>
+                }
+                @if (pagesMin > 2)
+                {
+                    <span>…</span>
+                }
+                @for (int i = pagesMin; i <= pagesMax; i++)
+                {
+                    if (currentPage == i)
+                    {
+                        <a href="#" class="active">@i</a>
+                    }
+                    else
+                    {
+                        object param;
+                        if (i == 1)
+                        { param = null; }
+                        else
+                        { param = i; }
+                        <a href="/agents/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", @param } })">@i</a>
+                    }
+                }
+                @if (pagesMax < pagesCount - 1)
+                {
+                    <span>…</span>
+                }
+                @if (pagesMax < pagesCount)
+                {
+                    <a href="/agents/@Model.FilterData.GetQueryString(new Dictionary<string, object>() { { "Page", pagesCount } })">@pagesCount</a>
+                }
+            </div>
+            <div class="counts-per-page">
+                @{ var enough = false; }
+                @foreach (var c in counts)
+                {
+                    if (c >= totalCount)
+                    {
+                        if (enough)
+                        { break; }
+                        else
+                        { enough = true; }
+                    }
+                    if (c == count)
+                    {
+                        <a href="#" class="active">@c</a>
+                    }
+                    else
+                    {
+                        object param;
+                        if (c == 12)
+                        { param = null; }
+                        else
+                        { param = c; }
+                        var newValues = new Dictionary<string, object>()
+                            {
+                                { "Page", null },
+                                { "Count", param }
+                            };
+                        <a href="/agents/@Model.FilterData.GetQueryString(newValues)">@c</a>
+                    }
+                }
+                <span>نماینده در صفحه</span>
+            </div>
+        }
+    </div>
+</div>
+
+@section metas {
+    @{
+        var imgUrl = ViewBag.FilesPath + "/userfiles/agents.jpg";
+        var desc = "شرکت فرش دارکوب امروز دارای بیش از 400 نماینده فعال و معتبر در سراسر کشور می‌باشد.";
+    }
+    <meta name="description" content="@desc" />
+    <meta name="image" content="@imgUrl" />
+
+    <meta property="og:title" content="لیست نماینگان شرکت فرش دارکوب امروز" />
+    <meta property="og:type" content="daremco:agents" />
+    <meta property="og:image" content="@imgUrl" />
+    <meta property="og:description" content="@desc" />
+}

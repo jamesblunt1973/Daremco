@@ -1,0 +1,79 @@
+﻿@model Agent;
+
+<div data-id="@Model.Id" class="visit-card">
+    <a href="@ViewBag.FilesPath/users/@(Model.Id).jpg" class="image panel">
+        <img src="@ViewBag.FilesPath/users/_@(Model.Id).jpg" alt="@Model.Name" title="تصویر نماینده @Model.Name" />
+    </a>
+    <div class="agent-info">
+        <div class="agent-rate">
+            @{
+                var agentRate = 0;
+                if (!string.IsNullOrEmpty(Model.Email))
+                    agentRate = Model.Email.Length;
+                for (var i = 0; i < agentRate; i++)
+                {
+                    <span class="star-gold">★</span>
+                }
+                for (var i = agentRate; i < 5; i++)
+                {
+                    <span class="star-gray">★</span>
+                }
+            }
+        </div>
+        <p>کد نمایندگی: @Model.Id</p>
+        <p>@Model.Name</p>
+        <p>
+            <a href="/agents?StateId=@Model.StateId">@Model.State</a>
+            -
+            <a href="/agents?StateId=@Model.StateId&CityId=@Model.CityId">@Model.City</a>
+        </p>
+        @if (Model.RoleId == 3)
+        {
+            @if (!string.IsNullOrEmpty(Model.MapLink))
+            {
+                <p>
+                    <a href="@Model.MapLink" target="_blank" @*class="panel"*@>
+                        <span class="dkb-place inline-icon"></span>
+                        @Model.Address
+                    </a>
+                </p>
+            }
+            else
+            {
+                <p class="icon-p">
+                    <span class="dkb-map inline-icon"></span>
+                    <span>@Model.Address</span>
+                </p>
+            }
+        }
+        @if (!string.IsNullOrEmpty(Model.Tell))
+        {
+            <p class="icon-p">
+                <span class="dkb-phone inline-icon"></span>
+                <span>@Model.Tell</span>
+            </p>
+        }
+        @if (!string.IsNullOrEmpty(Model.AgentsWorkHours))
+        {
+            var strItems = Model.AgentsWorkHours.Split(';');
+            if (strItems.Length == 2)
+            {
+                var mornings = strItems[0].Split('=');
+                var evenings = strItems[1].Split('=');
+                <p class="icon-p">
+                    <span class="dkb-clock inline-icon"></span>
+                    @mornings[0] تا @mornings[1] ،
+                    @evenings[0] تا @evenings[1]
+                </p>
+            }
+            else
+            {
+                var items = strItems[0].Split('=');
+                <p class="icon-p">
+                    <span class="dkb-clock inline-icon"></span>
+                    @items[0] تا @items[1] یکسره
+                </p>
+            }
+        }
+    </div>
+</div>

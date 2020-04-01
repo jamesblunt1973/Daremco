@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="fa">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="robots" content="index, follow" />
+	@RenderSection("metas", false)
+	<meta property="og:url" content="http://www.daremco.com/" />
+	<meta property="og:site_name" content="وبسایت رسمی شرکت فرش دارکوب امروز" />
+	<title>شرکت فرش دارکوب امروز - @ViewData["Title"]</title>
+
+	<environment include="Development">
+		<link href="~/lib/jRange/jquery.range.css" rel="stylesheet" />
+		<link href="~/lib/rateit/rateit.css" rel="stylesheet" />
+		<link href="~/css/layout.css" rel="stylesheet" />
+		<link href="~/css/products.css" rel="stylesheet" />
+		<link href="~/css/product.css" rel="stylesheet" />
+		<link href="~/css/responsive.css" rel="stylesheet" />
+		<link href="~/css/animations.css" rel="stylesheet" />
+		<link href="~/css/icons.css" rel="stylesheet" />
+	</environment>
+	<environment exclude="Development">
+		<link href="~/lib/lib.min.css" rel="stylesheet" />
+		<link href="~/css/site.min.css" rel="stylesheet" asp-append-version="true" />
+		<link rel="apple-touch-icon" href="~/img/logo.png">
+		<link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+	</environment>
+</head>
+<body>
+	<div id="container">
+		<header>
+			<div class="banner">
+				<div class="hamburger">
+					<div>
+						<span></span>
+						<span></span>
+						<span></span>
+						<span></span>
+					</div>
+					<p>منوی سایت</p>
+				</div>
+				<img src="~/img/logo-w-75.png" alt="daremco-logo" />
+				<div class="user">
+					<span class="dkb-user"></span>
+					<img class="user-img" alt="user-photo" />
+					<p class="name">ورود/ثبت نام</p>
+				</div>
+			</div>
+			<nav>
+				<div class="menu">
+					@await Component.InvokeAsync("Menu")
+				</div>
+			</nav>
+		</header>
+		<section>
+			@RenderBody()
+		</section>
+		<footer>
+			<section class="intro">
+				<p>پاسخگوی مشکلات شما هستیم</p>
+				<div class="tell">
+					@*<span class="dkb-telegram"></span>
+						<span class="dkb-whatsapp"></span>*@
+					<span>09037777688</span>
+					<div class="messengers">
+						<p>
+							<span class="dkb-telegram"></span>
+							<span>تلگرام</span>
+						</p>
+						<p>
+							<span class="dkb-whatsapp"></span>
+							<span>واتس آپ</span>
+						</p>
+						<p>
+							<span class="dkb-gap"></span>
+							<span>گپ</span>
+						</p>
+					</div>
+				</div>
+			</section>
+			<section class="quick-access">
+				@await Component.InvokeAsync("Menu")
+				<div class="sites">
+					<a href="@ViewBag.ShopUrl/darkoob">
+						<span class="dkb-chat"></span>
+						<p>پیام رسان دارکوب</p>
+					</a>
+					<a href="@ViewBag.ShopUrl/plus">
+						<span class="dkb-plus-circle"></span>
+						<p>دارمکو پلاس</p>
+					</a>
+					@*<a href="@ViewBag.ShopUrl/extra?categoryId=1">
+						<span class="dkb-dress"></span>
+						<p>پوشاک هنری دارمکو</p>
+					</a>*@
+				</div>
+			</section>
+			<section class="about">
+				<div class="scroll-top">
+					<span class="dkb-arrow-up-circle"></span>
+				</div>
+				<p>
+					<b>معرفی شرکت فرش دارکوب امروز</b>
+					<br />
+					شرکت فرش دارکوب امروز ( با برند دارمکو)   فعالیت خود  را  از سال  1382 آغاز کرده
+					و طی این سالها موفق شده است که بزرگترین شبکه تولید پک نخ و نقشه ی انواع فرش و تابلوفرش  و
+					ارائه خدمات فنی و پشتیبانی مرتبط با آن را در کشور  راه اندازی و مدیریت نماید
+					<a href="/post/about">ادامه</a>
+				</p>
+				<div class="licenses">
+					<img src="~/img/samandehi.png" alt="ساماندهی" />
+					<a target="_blank" href="https://trustseal.enamad.ir/?id=41105&amp;Code=1anhMIY5eWdnXW5SEqfD"><img src="https://Trustseal.eNamad.ir/logo.aspx?id=41105&amp;Code=1anhMIY5eWdnXW5SEqfD" alt="" style="cursor:pointer" id="1anhMIY5eWdnXW5SEqfD"></a>
+				</div>
+			</section>
+		</footer>
+	</div>
+	<div id="login-panel" class="template" style="width: 250px">
+		<form>
+			<div class="form-control">
+				<input class="control" type="text" required placeholder="شماره همراه" pattern="(09|۰۹)([0-9]|[۰-۹]){9}$" />
+			</div>
+			<div class="form-control">
+				<input class="control" type="password" required placeholder="کلمه عبور" />
+			</div>
+			<div class="form-control">
+				<label>
+					<input type="checkbox" />
+					ذخیره اطلاعات ورود
+				</label>
+			</div>
+			<div class="form-actions">
+				<button class="apply" type="button">ورود به سایت</button>
+				<a href="@ViewBag.ShopUrl/register" target="_blank">ثبت نام</a>
+			</div>
+			<p class="result error-msg"></p>
+			<p class="result success-msg"></p>
+		</form>
+	</div>
+	<script>
+		var productsPath = '@ViewBag.FilesPath/products/';
+		var usersPath = '@ViewBag.FilesPath/users/';
+        var shopUrl = '@ViewBag.ShopUrl';
+	</script>
+	<environment include="Development">
+		<script src="~/lib/jquery/dist/jquery.js"></script>
+		<script src="~/lib/jRange/jquery.range.js"></script>
+		<script src="~/lib/rateit/jquery.rateit.js"></script>
+		<script src="~/lib/jquery-cookie/jquery.cookie.js"></script>
+		<script src="~/lib/jquery-format-currency/jquery.formatCurrency-1.4.0.js"></script>
+		<script src="~/lib/chart/chart.min.js"></script>
+		<script src="~/js/layout.js"></script>
+		<script src="~/js/products.js"></script>
+		<script src="~/js/product.js"></script>
+	</environment>
+	<environment exclude="Development">
+		<script src="~/lib/lib.min.js"></script>
+		<script src="~/js/site.min.js" asp-append-version="true"></script>
+	</environment>
+</body>
+</html>

@@ -1,0 +1,493 @@
+﻿@page "{id?}"
+@model Catalog.Web.Pages.ProductModel
+@{
+	ViewData["Title"] = Model.Product == null ? "محصولی یافت نشد" : Model.Product.Name;
+}
+
+<div class="page-content">
+	<div class="product-panel">
+		@if (Model.Product == null)
+		{
+			<div class="error">محصولی یافت نشد</div>
+		}
+		else
+		{
+			var productRate = Math.Round(Model.Product.Rate, 2);
+			var materialGroups = Model.Product.ProductColors
+				.Where(a => a.MaterialGroupId.HasValue)
+				.GroupBy(a => a.MaterialGroupId)
+				.OrderBy(a => a.Key);
+			var materialCounts = materialGroups.Count();
+			var freePostMessage = Model.PrimaryData.SendMethods[3].Description;
+			var lotteryMessage = Model.PrimaryData.Messages["Lottory"];
+			var freePlans = Model.PrimaryData.Messages["FreePlans"];
+			var skeinTypes = Model.Product.ProductTypes.ToList();
+			var bulkTypes = Model.Product.BulkTypes.ToList();
+			var totalTies = Model.Product.TiesWidth * Model.Product.TiesHeight;
+			string delivery = "";
+			var audioPlan = Model.Product.Plans.SingleOrDefault(a => a.PlanTypeId == 3);
+			if (skeinTypes.Count > 0)
+			{
+				delivery = "کلافی";
+			}
+			if (skeinTypes.Count > 0 && bulkTypes.Count > 0)
+			{
+				delivery += " و ";
+			}
+			if (bulkTypes.Count > 0)
+			{
+				delivery += "بسته‌ای";
+			}
+			<div class="product-title">
+				<h1 class="name">
+					@Model.Product.Name (@Model.Id)
+				</h1>
+				<div class="rate">
+					<div class="rateit"
+						 data-rateit-mode="font"
+						 data-rateit-step="1"
+						 data-rateit-resetable="false"
+						 data-rateit-value="@productRate"
+						 data-product-id="@Model.Id">
+					</div>
+					<span>@productRate (@Model.Product.RateNum رای)</span>
+				</div>
+			</div>
+			<div class="product-body">
+				<div data-href="@ViewBag.FilesPath/products/@Model.Id/main.jpg" class="image btn">
+					<img src="@ViewBag.FilesPath/products/@Model.Id/300.jpg" alt="@Model.Product.Name" title="تصویر محصول @Model.Product.Name" />
+				</div>
+				<div class="properties">
+					<p class="inline-items">
+						<a href="/?categoryId=@Model.Product.CategoryId">@Model.Product.CategoryName</a>
+						<span class="dkb-chevron-left"></span>
+						<a href="/?galleryId=@Model.Product.GalleryId">@Model.Product.GalleryName</a>
+					</p>
+					@*<p>تولید: @Model.Product.CreateDate.GetJalaliDate(JalaliDateFormat.SimpleDate)</p>*@
+					<p>@Model.Product.TiesWidth گره در @Model.Product.TiesHeight رج</p>
+					<p>@Model.Product.Moghat مقاط</p>
+					<p>@Model.Product.ColorsCount رنگ</p>
+					@if (materialCounts > 1)
+					{
+						<p>
+							<a href="@ViewBag.FilesPath/products/@Model.Id/negative.png" class="panel">مشاهده آنالیز جنس خامه</a>
+							@*،
+								<a href="/link-to-desc" target="_blank">
+									اطلاعات بیشتر
+									<span class="dkb-link-external inline-icon"></span>
+								</a>*@
+						</p>
+					}
+					@*<p>
+							تحویل به صورت @delivery
+							<a href="/link-to-desc" target="_blank">
+								اطلاعات بیشتر
+								<span class="dkb-link-external inline-icon"></span>
+							</a>
+						</p>*@
+					<p>
+						<a href="@ViewBag.ShopUrl/palette/@Model.Id" target="_blank">
+							مشاهده پالت راهنما
+							<span class="dkb-link-external inline-icon"></span>
+						</a>
+					</p>
+					@if (audioPlan != null)
+					{
+						<p class="plan-download-btn btn" data-plan-type-id="3" data-plan-id="@audioPlan.Id" title="دانلود نقشه صوتی">
+							<span>دانلود نقشه صوتی</span>
+							<span class="dkb-audio inline-icon"></span>
+						</p>
+					}
+				</div>
+				<div class="product-badges">
+					@if (Model.Product.Discount > 0)
+					{
+						<div class="product-badge">
+							<p class="badge-title">@Model.Product.Discount درصد @Model.PrimaryData.Settings["DiscountHeaderText"]</p>
+							<span class="badge-icon dkb-percent"></span>
+						</div>
+					}
+					<div class="product-badge">
+						<p class="badge-title btn" data-desc="@freePostMessage">
+							ارسال پستی رایگان
+							<span class="dkb-cursor-default-click inline-icon"></span>
+						</p>
+						<span class="badge-icon dkb-shipping"></span>
+					</div>
+					@if (Model.Product.FreePlans)
+					{
+						<div class="product-badge">
+							<p class="badge-title btn" data-desc="@freePlans">
+								با نقشه بافت رایگان
+								<span class="dkb-cursor-default-click inline-icon"></span>
+							</p>
+							<div class="free-plan">
+								<span class="badge-icon dkb-tag"></span>
+								<i>FREE</i>
+							</div>
+						</div>
+					}
+					<div class="product-badge">
+						<p class="badge-title btn" data-desc="@lotteryMessage">
+							قرعه کشی  سالیانه
+							<span class="dkb-cursor-default-click inline-icon"></span>
+						</p>
+						<span class="badge-icon dkb-gift"></span>
+					</div>
+				</div>
+			</div>
+			@if (Model.Product.OwnerId.HasValue)
+			{
+				var ownerMessage = Model.PrimaryData.Settings["OwnerMessage"].Split('\n');
+				var userId = Model.Product.OwnerUserName != "" ? Model.Product.OwnerUserName : Model.Product.OwnerId.ToString();
+				<div class="owner">
+					<div>
+						<img src="@(ViewBag.FilesPath + "/users/_" + Model.Product.OwnerId + ".jpg")" />
+						<p>@Html.Raw(ownerMessage[Model.Product.OwnerMessageLine].Replace("name", "<b>" + Model.Product.OwnerName + "</b>"))</p>
+					</div>
+					<div>
+						<span class="dkb-plus-circle"></span>
+						<a href="@ViewBag.ShopUrl/plus/@userId" target="_blank">
+							مشاهده تمام پست‌های این کاربر در دارمکوپلاس
+							<span class="dkb-link-external inline-icon"></span>
+						</a>
+					</div>
+					<div>
+						<span class="dkb-chat"></span>
+						<a href="@ViewBag.ShopUrl/darkoob/@userId" target="_blank">
+							گفتگو با این کاربر در پیام رسان
+							<span class="dkb-link-external inline-icon"></span>
+						</a>
+					</div>
+				</div>
+			}
+			<div class="shop-items">
+				@if (skeinTypes.Count > 0)
+				{
+					var headerText = new string[] { "رجشمار", "ابعاد", "جنس", "نوع بافت", "طول گره", "موجودی", "ویژگی ها", "قیمت", "خرید" };
+					<div class="shop-items-title">
+						<h2>انواع نخ خامه - تحویل کلافی</h2>
+						<p>(قیمت ها به <b>تومان</b> است)</p>
+						@*<a href="/link-to-desc" target="_blank">
+								اطلاعات بیشتر
+								<span class="dkb-link-external inline-icon"></span>
+							</a>*@
+					</div>
+					<table class="product-types table-list">
+						<thead>
+							<tr>
+								@foreach (var header in headerText)
+								{
+									<th>@header</th>
+								}
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var type in skeinTypes)
+							{
+								var tieLength = Model.PrimaryData.TieLengths[type.MainTieLengthId];
+								<tr>
+									<td data-title="@headerText[0]" class="text-center">@type.Raj</td>
+									<td data-title="@headerText[1]" class="text-center">@(type.DimsWidth + " در " + type.DimsHeight) سانت</td>
+									<td data-title="@headerText[2]">
+										@if (type.MaterialId.HasValue)
+										{
+											@Model.PrimaryData.Materials[type.MaterialId.Value].Name
+										}
+										else
+										{
+											<div class="skin-materials btn" data-id="@type.Id" data-ties="@totalTies">
+												@type.Materials.GetDisplayName()
+												<span class="dkb-cursor-default-click inline-icon"></span>
+											</div>
+										}
+									</td>
+									<td data-title="@headerText[3]">@Model.PrimaryData.TieTypes[type.TieTypeId]</td>
+									<td data-title="@headerText[4]">@(tieLength.Length + " سانت (" + tieLength.Title + ")")</td>
+									<td data-title="@headerText[5]">
+										@if (type.Stock <= 0)
+										{
+											<small class="stock">
+												@type.DeliveryMessage
+												@*<a href="/link-to-desc" target="_blank">اطلاعات بیشتر<span class="dkb-link-external inline-icon"></span></a>*@
+											</small>
+										}
+										else
+										{
+											<p class="stock">@type.Stock</p>
+										}
+									</td>
+									<td data-title="@headerText[6]">
+										<div class="icons">
+											@*@if (Model.Product.Discount > 0)
+												{
+													<span class="discount icon" data-desc="دارای @Model.Product.Discount درصد @Model.PrimaryData.Settings["DiscountHeaderText"]">@Model.Product.Discount%</span>
+												}*@
+											@if (!type.Continued)
+											{
+												<span class="dkb-play-pause icon" data-desc="این محصول پس از اتمام موجودی، از چرخه تولید کنار گذاشته خواهد شد"></span>
+											}
+											@if (type.PositiveSale.HasValue)
+											{
+												<span class="dkb-plus-circle icon" data-desc="خرید این محصول تنها با موجودی مثبت امکان پذیر است"></span>
+											}
+											@if (!string.IsNullOrEmpty(type.AttributeIds))
+											{
+												var attributeIds = type.AttributeIds.Split(',').Select(int.Parse);
+												foreach (var attributeId in attributeIds)
+												{
+													if (!Model.PrimaryData.Attributes.ContainsKey(attributeId))
+														continue;
+													var attr = Model.PrimaryData.Attributes[attributeId];
+													<div class="icon" data-desc="@attr.Description">
+														<span class="@attr.Icon"></span>
+													</div>
+												}
+											}
+										</div>
+									</td>
+									<td data-title="@headerText[7]" align="left">@type.Price.ToString("n0")</td>
+									<td data-title="@headerText[8]" align="center">
+										<span class="dkb-shopping-cart shop-btn" data-id="@type.Id" data-entity="skein"></span>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+				@if (bulkTypes.Count > 0)
+				{
+					var headerText = new string[] { "رجشمار", "ابعاد", "جنس", "طول گره", "خرید" };
+					<div class="shop-items-title">
+						<h2>
+							انواع نخ خامه - تحویل بسته‌ای
+						</h2>
+						<p>(قیمت ها به <b>تومان</b> است)</p>
+
+						<a href="@ViewBag.ShopUrl/post/8734" target="_blank">
+							اطلاعات بیشتر
+							<span class="dkb-link-external"></span>
+						</a>
+					</div>
+					@if (!string.IsNullOrEmpty(Model.Product.DeliveryMessage))
+					{
+						<p>@Model.Product.DeliveryMessage</p>
+					}
+					@foreach (var rajGroup in bulkTypes.GroupBy(a => a.Raj))
+					{
+						var types = rajGroup.OrderBy(a => a.MaterialId).ThenBy(a => a.MainTieLengthId);
+						var firstType = rajGroup.First();
+						<div class="bulk-type-group">
+							<div class="bulk-type-title">
+								<span>رجشمار @rajGroup.Key،</span>
+								<span>@Model.PrimaryData.TieTypes[firstType.TieTypeId]،</span>
+								<span>@firstType.DimsWidth در @firstType.DimsHeight سانت،</span>
+								<span>@rajGroup.Count() محصول</span>
+								<span class="btn dkb-chevron-left"></span>
+							</div>
+							<div style="display: none;">
+								<table class="product-types table-list">
+									<thead>
+										<tr>
+											@foreach (var header in headerText)
+											{
+												<th>@header</th>
+											}
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var type in types)
+										{
+											var tieLength = Model.PrimaryData.TieLengths[type.MainTieLengthId];
+											<tr class="@(type.Count == 2 ? "thick-border-bottom" : "")">
+												@if (type.Count == 1)
+												{
+													<td valign="top" data-title="@headerText[0]" class="text-center">@type.Raj</td>
+													<td valign="top" data-title="@headerText[1]" class="text-center">@(type.DimsWidth + " در " + type.DimsHeight)</td>
+													<td valign="top" data-title="@headerText[2]">
+														<div class="bulk-materials btn" data-id="@type.Id">
+															@if (type.MaterialId.HasValue)
+															{
+																@Model.PrimaryData.Materials[type.MaterialId.Value].Name
+																<span class="dkb-cursor-default-click"></span>
+															}
+															else
+															{
+																var i = 0;
+																foreach (var materialKey in materialGroups.Select(a => a.Key))
+																{
+																	var materialId =
+																		Model.PrimaryData
+																		.Rajs[type.Raj]
+																		.MaterialRajs[materialKey.Value - 1]
+																		.MaterialId;
+																	i++;
+																	<p>
+																		@Model.PrimaryData.Materials[materialId].Name
+																		@if (i == 1) // just for first row
+																		{
+																			<span class="dkb-cursor-default-click left-float"></span>
+																		}
+																	</p>
+																}
+																@*@type.Materials.GetDisplayName()*@
+															}
+														</div>
+													</td>
+													<td valign="top" data-title="@headerText[3]">@(tieLength.Length + " سانت (" + tieLength.Title + ")")</td>
+												}
+												else
+												{
+													<td colspan="4"></td>
+												}
+												<td valign="top" data-title="@headerText[4]" class="shop-item">
+													<span>@type.Count تخته</span>
+													<span>@type.Price.ToString("n0")</span>
+													<span class="dkb-shopping-cart shop-btn" data-id="@type.Id" data-entity="bulk"></span>
+												</td>
+											</tr>
+										}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					}
+				}
+				<div class="shop-items-title">
+					<h2>انواع مختلف نقشه از این تصویر</h2>
+					<p>(قیمت ها به <b>تومان</b> است)</p>
+				</div>
+				<table class="table-list">
+					<thead>
+						<tr>
+							<th>نام نقشه</th>
+							<th>قیمت</th>
+							<th>خرید</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var plan in Model.Product.Plans)
+						{
+							<tr>
+								<td>نقشه @(Model.PrimaryData.PlanTypes[plan.PlanTypeId] + " " + plan.Name)</td>
+								@if (plan.Price > 0)
+								{
+									<td align="left">@plan.Price.ToString("n0")</td>
+									<td align="center">
+										<span class="dkb-shopping-cart shop-btn" data-id="@plan.Id" data-entity="plan"></span>
+									</td>
+								}
+								else
+								{
+									<td>رایگان</td>
+									<td align="center">
+										<span class="dkb-download plan-download-btn" data-plan-type-id="@plan.PlanTypeId" data-plan-id="@plan.Id" title="دانلود"></span>
+									</td>
+								}
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+</div>
+@if (Model.Product != null)
+{
+	<div id="audio-plan-panel" class="template">
+		<form action="@ViewBag.ShopUrl/Download.aspx" target="_blank" method="post">
+			<input type="hidden" name="type" value="audio" />
+			<input type="hidden" name="productId" value="@Model.Product.Id" />
+			<input type="hidden" name="skein" value="@Model.Product.Skein.ToString()" />
+			<label class="form-control">
+				<input type="radio" name="joola" value="true" checked />
+				نقشه صوتی برای دستگاه نقشه خوان جولا و نرم افزار موبایل اندروید و ویندوز
+			</label>
+			<label class="form-control">
+				<input type="radio" name="joola" value="false" />
+				نقشه صوتی برای دستگاه نقشه خوان همراه دوم
+			</label>
+			<div class="form-control serial" style="display: none">
+				<input type="text" name="serial" placeholder="سریال دستگاه" />(مخصوص دستگاه نقشه خوان همراه دوم)
+			</div>
+			<div class="form-control" style="display: @(Model.Product.Skein ? "none" : "block")">
+				<input type="text" name="code" placeholder="کد پیگیری" />(برای محصولات بسته‌ای الزامی است)
+			</div>
+			<div class="form-control">
+				<label>
+					<input type="radio" name="turned" value="false" checked />
+					نقشه راسته
+				</label>
+				<label>
+					<input type="radio" name="turned" value="true" />
+					نقشه چرخیده
+				</label>
+			</div>
+			<div class="form-actions">
+				<button class="apply" type="submit">دانلود</button>
+				<button class="reset" type="button">انصراف</button>
+			</div>
+		</form>
+	</div>
+	<div id="numerical-plan-panel" class="template">
+		<form action="@ViewBag.ShopUrl/Download.aspx" target="_blank" method="post">
+			<input type="hidden" name="type" value="plan" />
+			<input type="hidden" name="planId" value="" />
+			<label class="form-control">
+				<input type="radio" name="mobile" value="false" checked />
+				نقشه عددی مناسب چاپ
+			</label>
+			<label class="form-control">
+				<input type="radio" name="mobile" value="true" />
+				نقشه عددی مناسب مطالعه در موبایل
+			</label>
+			<div class="form-actions">
+				<button class="apply" type="submit">دانلود</button>
+				<button class="reset" type="button">انصراف</button>
+			</div>
+		</form>
+	</div>
+	<div id="cross-plan-panel" class="template">
+		<form action="@ViewBag.ShopUrl/Download.aspx" method="post" target="_blank" style="width: 200px;">
+			<input type="hidden" name="type" value="plan" />
+			<input type="hidden" name="planId" value="" />
+			<input type="hidden" name="large" value="true" />
+			<label class="form-control">
+				<input type="radio" name="blank" value="false" checked />
+				نقشه خانه بندی با عدد
+			</label>
+			<label class="form-control">
+				<input type="radio" name="blank" value="true" />
+				نقشه خانه بندی بدون عدد
+			</label>
+			<div class="form-actions">
+				<button class="apply" type="submit">دانلود</button>
+				<button class="reset" type="button">انصراف</button>
+			</div>
+		</form>
+	</div>
+}
+
+@section metas {
+	@if (Model.Product != null)
+	{
+		var product = Model.Product;
+		var desc = product.TiesWidth + " گره، " + product.TiesHeight + " رج. ";
+		desc += product.Moghat + "مقاط. ";
+		desc += product.ColorsCount + " رنگ. ";
+		var skeinCount = product.ProductTypes.Count();
+		var bulkCount = product.BulkTypes.Count();
+		if (skeinCount > 0)
+			desc += skeinCount + " نوع با تحویل کلافی. ";
+		if (bulkCount > 0)
+			desc += bulkCount + " نوع با تحویل بسته ای. ";
+		var imgUrl = ViewBag.FilesPath + "/products/@Model.Id/main.jpg";
+		<meta name="description" content="@desc" />
+		<meta name="image" content="@imgUrl" />
+
+		<meta property="og:title" content="@product.Name" />
+		<meta property="og:type" content="product" />
+		<meta property="og:image" content="@imgUrl" />
+		<meta property="og:description" content="@desc" />
+	}
+}

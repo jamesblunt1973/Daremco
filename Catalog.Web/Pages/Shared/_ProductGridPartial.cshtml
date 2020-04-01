@@ -1,0 +1,39 @@
+﻿@model ProductSummury;
+
+<a data-id="@Model.Id" href="/product/@Model.Id" class="product product-grid-item @("p" + ViewBag.Size)">
+    <div class="image">
+        <img src="@ViewBag.FilesPath/products/@Model.Id/@(ViewBag.Size).jpg" alt="@Model.Name" title="تصویر محصول @Model.Name" />
+    </div>
+    <p class="id">کد محصول: <b>@Model.Id</b></p>
+    <p class="name">@Model.Name</p>
+    @if (Model.MinPrice != Model.MaxPrice)
+    {
+        <p class="price">از @Model.MinPrice.ToString("n0") تومان<br />تا @Model.MaxPrice.ToString("n0") تومان</p>
+    }
+    else
+    {
+        <p class="price">قیمت: @Model.MinPrice.ToString("n0") تومان</p>
+    }
+
+    @if (Model.Stock > 0)
+    {
+        <p class="in-stock">موجودی @Model.Stock عدد</p>
+    }
+    else
+    {
+        <p class="out-stock">
+            فاقد موجودی
+            @if (!string.IsNullOrEmpty(Model.DeliveryMessage))
+            {
+                <span class="dkb-information" title="@Model.DeliveryMessage"></span>
+            }
+        </p>
+    }
+    @if (Model.Discount > 0)
+    {
+        <div class="discount">
+            <span class="dkb-price-tag"></span>
+            <i>@Model.Discount%</i>
+        </div>
+    }
+</a>

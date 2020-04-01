@@ -1,0 +1,23 @@
+﻿@model MiscProduct;
+
+<div data-id="@Model.Id" class="product product-grid-item p200">
+    <a href="@ViewBag.FilesPath/misc/@(Model.Id).jpg" class="image panel">
+        <img src="@ViewBag.FilesPath/misc/_@(Model.Id).jpg" alt="@Model.Name" title="تصویر محصول @Model.Name" />
+    </a>
+    <p class="misc-name">@Model.Name</p>
+    <p class="price">قیمت: @Model.Price.ToString("n0") تومان</p>
+    @if (Model.Stock > 0 || Model.PreSale)
+    {
+        <span class="dkb-shopping-cart shop-btn" data-id="@Model.Id" data-entity="misc"></span>
+    }
+    @if (Model.Stock > 0)
+    {
+        <p class="in-stock">موجودی @Model.Stock عدد</p>
+    }
+    else
+    {
+        <p class="out-stock">
+            فاقد موجودی
+        </p>
+    }
+</div>
